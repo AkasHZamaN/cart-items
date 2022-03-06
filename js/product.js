@@ -1,40 +1,72 @@
-const addItem = () => {
-    const productField = document.getElementById('product-field');
-    const product = productField.value;
-    // display product 
-    displayItems(product);
-
-    // display localStorage
-    addProductToCart(product);
-
-    productField.value = '';
-}
-
-const displayItems = product => {
-    const ul = document.getElementById('product-items');
-    const li = document.createElement('li');
-    li.classList.add('nav-item');
-    li.innerText = product;
-
-    ul.appendChild(li);
-}
-
-const getCart = () => {
-    const cart = localStorage.getItem('cart');
-    let cartObj;
-    if(cart){
-        cartObj = JSON.parse(cart);
+    const loadCartList = () => {
+        const cartList = getCartList();
+        for(const productName in cartList){
+            displayProduct(productName);
+        }
     }
-    else{
-        cartObj ={};
-    }
-    return cartObj;
-}
+    // event listener 
+    const addItem = () => {
+        const productField = document.getElementById('product-field');
+        const productName = productField.value;
 
-const addProductToCart = product => {
-    const cart = getCart();
-    cart[product] = 1;
-    
-    const cartStringigy = JSON.stringify(cart);
-    localStorage.setItem('cart', cartStringigy);
-}
+        // if product value none then return
+        if(!productName){
+            return;
+        }
+
+        // display product in the UI
+        displayProduct(productName);
+
+        // display product in the locarStorage
+        productToCartList(productName);
+
+        // clear product field
+        productField.value = '';
+    }
+
+    // display function for showing product in the UI
+    const displayProduct = productName => {
+        const ul = document.getElementById('product-items');
+
+        const li = document.createElement('li');
+        li.innerText = productName;
+
+        ul.appendChild(li);
+    }
+
+    // check the cart list in the localStorage. if have cart list then parse it otherwise we create new cart list
+    const getCartList = () => {
+        const cartList = localStorage.getItem('cartList');
+        let cartListObject;
+        if(cartList){
+            cartListObject = JSON.parse(cartList);
+        }
+        else{
+            cartListObject = {};
+        }
+        return cartListObject;
+    }
+
+    // add product to the localStorage
+    const productToCartList = productName => {
+        const cartList = getCartList();
+        if(cartList[productName]){
+            cartList[productName] = cartList[productName]+1;
+        }
+        else{
+            cartList[productName] = 1;
+        }
+        
+        const cartListStringify = JSON.stringify(cartList);
+        localStorage.setItem('cartList', cartListStringify);
+    }
+
+    const orderNow = () => {
+        document.getElementById('product-items').textContent = '';
+        localStorage.removeItem('cartList');
+    }
+
+    // const addToCart = () => {
+    //     displayProduct(productName);
+    // }
+    loadCartList();
